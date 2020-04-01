@@ -152,7 +152,7 @@ class Home extends React.Component{
 
                 <footer>
                     <p style={{flex: 1}}>
-                        Created by: <a href="https://twitter.com/alexmadrzyk" target="_blank">@alexmadrzyk</a> &nbsp;//&nbsp;&nbsp;
+                        Created by: <a href="https://twitter.com/alexmadrzyk" target="_blank">@<u>alexmadrzyk</u></a> &nbsp;//&nbsp;&nbsp;
                         <a
                             href="https://zeit.co?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
                             target="_blank"
