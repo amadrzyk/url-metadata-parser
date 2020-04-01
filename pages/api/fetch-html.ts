@@ -1,4 +1,5 @@
 import { NowRequest, NowResponse } from '@now/node'
+import {array} from "prop-types";
 const qs = require('querystring');
 const axios = require('axios');
 const metascraper = require('metascraper')([
@@ -15,30 +16,44 @@ const metascraper = require('metascraper')([
 
 export default async (req: NowRequest, res: NowResponse) => {
     // get urls
-    const urlsText = req.query.urls;
-    if (urlsText === null || urlsText === '')
-        return res.json({});
-
-    // @ts-ignore / split urls to array
-    const targetUrls = urlsText.split(/\r?[\n,\s]/);
-    let metadatas = [];
+    const targetUrls = req.query.urls;
+    if (targetUrls === null)
+        return res.json({err: 'targetUrls is empty'});
+    if (!Array.isArray(targetUrls))
+        return res.json({err: 'targetUrls is not an array'});
 
     // for each url, fetch html and extract metadata
-    for (const targetUrl of targetUrls){
-        let result = await axios.get(targetUrl, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                "Access-Control-Allow-Headers": "x-requested-with, content-type",
-                "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
-                "Access-Control-Allow-Credentials": "true"
-            }
+    try {
+        // 1. make array of promises
+        const fetchHtmlPromises = targetUrls.map(targetUrl => {
+            return axios.get(targetUrl, {
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    "Access-Control-Allow-Headers": "x-requested-with, content-type",
+                    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+                    "Access-Control-Allow-Credentials": "true"
+                }
+            }).catch(err => {
+                throw `There was an issue with the url '${targetUrl}'. Please revise or remove and try again. Error msg: '${err}'`
+            });
         });
 
-        const html = result.data;
-        const url = result.config.url;
-        const metadata = await metascraper({ html, url });
-        metadatas.push(metadata)
+        // 2. do promise.all, and fail fast
+        let fetchedHtmlsResult = await Promise.all(fetchHtmlPromises);
+
+        // 3. run metascraper on each result
+        let metadatasPromises = fetchedHtmlsResult.map((fetchedHtmlResult, index) => {
+            return metascraper({
+                html: fetchedHtmlResult.data,
+                url: targetUrls[index]
+            })
+        });
+        let metadatasResult = await Promise.all(metadatasPromises);
+        return res.json({metadatas: metadatasResult})
+
+    } catch (err) {
+        return res.json({err});
     }
 
-    return res.json({metadatas})
+
 }

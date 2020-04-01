@@ -1,5 +1,5 @@
 const express = require('express');
-var cors = require('cors');
+const cors = require('cors');
 const next = require('next');
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -10,7 +10,6 @@ server.prepare()
     .then(() => {
         const app = express();
         app.use(cors({origin:true,credentials: true}));
-        // app.use('/public', express.static('public'));
 
         app.get('*', (req, res) => {
             res.header("Access-Control-Allow-Origin", req.headers.origin);
