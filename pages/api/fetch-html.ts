@@ -16,11 +16,11 @@ const metascraper = require('metascraper')([
 
 export default async (req: NowRequest, res: NowResponse) => {
     // get urls
-    const targetUrls = req.query.urls;
+    let targetUrls = req.query.urls;
     if (targetUrls === null)
         return res.json({err: 'targetUrls is empty'});
     if (!Array.isArray(targetUrls))
-        return res.json({err: 'targetUrls is not an array'});
+        targetUrls = [targetUrls];
 
     // for each url, fetch html and extract metadata
     try {
