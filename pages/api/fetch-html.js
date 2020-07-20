@@ -1,7 +1,4 @@
-import { NowRequest, NowResponse } from '@now/node'
-import {array} from "prop-types";
-const qs = require('querystring');
-const axios = require('axios');
+import axios from 'axios'
 const metascraper = require('metascraper')([
     require('metascraper-title')(),
     require('metascraper-author')(),
@@ -14,9 +11,9 @@ const metascraper = require('metascraper')([
     require('metascraper-lang')(),
 ]);
 
-export default async (req: NowRequest, res: NowResponse) => {
+export default async (req, res) => {
     // get urls
-    let targetUrls = req.query.urls;
+    let targetUrls = req.body.urls;
     if (targetUrls === null)
         return res.json({err: 'targetUrls is empty'});
     if (!Array.isArray(targetUrls))

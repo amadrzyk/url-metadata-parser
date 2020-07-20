@@ -1,8 +1,7 @@
 import Head from 'next/head'
 import React from 'react'
 import CsvDownloader from 'react-csv-downloader';
-const axios = require('axios');
-const qs = require('querystring');
+import axios from 'axios'
 
 class Home extends React.Component{
     state = {
@@ -23,6 +22,7 @@ class Home extends React.Component{
     };
 
     handleConvertButtonClick = async () => {
+
         if (this.state.urlText === null || this.state.urlText === '')
             return;
 
@@ -50,13 +50,14 @@ class Home extends React.Component{
         let responseChunksResult = [];
         try {
             let responseChunksPromise = urlArrayChunks.map(arrayChunk => {
-                return axios.get('/api/fetch-html?' + qs.encode({
-                    urls: arrayChunk
-                }), {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',
-                    },
-                });
+                return axios.post('/api/fetch-html',
+                    {urls: arrayChunk},
+                    {
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                        }
+                    }
+                )
             });
 
             // await all
